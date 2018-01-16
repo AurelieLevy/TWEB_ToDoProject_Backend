@@ -1,0 +1,14 @@
+{
+  "name": "todo_backend",
+  "version": "1.0.0",
+  "description": "backend of the todo project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Remi Jacquemard, Daniel Palumbo, Aurelie Levy",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}
