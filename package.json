@@ -9,6 +9,7 @@
   "author": "Remi Jacquemard, Daniel Palumbo, Aurelie Levy",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.16.2"
+    "express": "^4.16.2",
+    "mongoose": "^4.13.9"
   }
 }
