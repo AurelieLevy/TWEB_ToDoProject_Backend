@@ -9,7 +9,11 @@
   "author": "Remi Jacquemard, Daniel Palumbo, Aurelie Levy",
   "license": "ISC",
   "dependencies": {
+    "chai": "^4.1.2",
     "express": "^4.16.2",
     "mongoose": "^4.13.9"
+  },
+  "devDependencies": {
+    "mocha": "^4.1.0"
   }
 }
