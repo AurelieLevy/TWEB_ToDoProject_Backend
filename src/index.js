@@ -1,3 +1,9 @@
-const DB = require('./db');
+const DBService = require('./dbservice');
 
-new DB().connect();
+const service = new DBService();
+
+service.connect()
+    .then(() =>  service.createOrGetUserPromise(145))
+    .then((user) => {
+        console.log(user);
+    });
