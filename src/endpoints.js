@@ -112,6 +112,14 @@ app.get('/userInfo', function (req, res) {
     wunderlistAPI.http.user.all()
     .done(function (lists){
         //DO STUFF
+        var userId = lists.id;
+        var userName = lists.name;
+        var jsonToSend = {
+            'userId': userId,
+            'userName': userName
+        };
+        res.json(jsonToSend);
+        console.log(lists.id);
     })
     .fail(function (){
         console.error("Problem with wunderlistApi /userInfo");
