@@ -4,7 +4,7 @@
 1) connexion
 POST /accessToken
 {
-    code
+    code: 'bla'
 }
 
 format réponse: 
@@ -14,7 +14,7 @@ format réponse:
 
 2) obtenir les info user (points, nom, info de profil, etc... a voir ce qu'on affiche)
 GET /userInfo
-Header: token
+Header: x-access-token
 
 format réponse: {
     id,
@@ -25,7 +25,7 @@ format réponse: {
 
 3) obtenir les images achetables
 GET /images?filter=solded
-Header: token
+Header: x-access-token
 
 format réponse:[
     {idImage1, valeur, url},
@@ -36,7 +36,7 @@ format réponse:[
 
 4) obtenir les images déjà achetées
 GET /images?filter=paid
-Header: token
+Header: x-access-token
 
 format réponse:[
     {idImage1, valeur, url},
@@ -46,7 +46,7 @@ format réponse:[
 
 5) achat image précise
 POST /images/idImage
-Header: token
+Header: x-access-token
 
 format réponse:
 {
@@ -67,6 +67,9 @@ var WunderlistSDK = require('wunderlist');
   'clientID': 'your client_id'
 });*/
 
+var wunderlistInfo = require('../ressources/wunderlist_info.json');
+
+var rp = require('request-promise');
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -75,12 +78,44 @@ app.set('port', (process.env.PORT || 5000));
 //endpoint pour connexion
 app.post('/accessToken', function (req, res) {
     var code = req.body.code;
-    
+    console.log("Code recu: " + code)
+    var options = {
+        method: 'POST',
+        uri: 'https://www.wunderlist.com/oauth/access_token',
+        body: {
+            "client_id": wunderlistInfo.client_id,
+            "client_secret": wunderlistInfo.client_secret,
+            "code": code
+        },
+        json: true
+    };
+    rp(options)
+        .then(function (parsedBody) {
+            console.log("accessToken sended to wunderlist API");
+            console.log("Token: " + parsedBody.access_token);
+            res.json(parsedBody);//renvoie au client
+        })
+        .catch(function (err) {
+            console.log("POST to get token to wunderlist API failed");
+        });
 });
 
 //endpoint pour info user
 app.get('/userInfo', function (req, res) {
-
+    var token = req.headers['x-access-token'];
+    console.log("token: " + token)
+    var wunderlistAPI = new WunderlistSDK({
+        'accessToken': token,
+        'clientID': wunderlistInfo.client_id
+    });
+    //wunderlistAPI.http.lists.all()
+    wunderlistAPI.http.user.all()
+    .done(function (lists){
+        //DO STUFF
+    })
+    .fail(function (){
+        console.error("Problem with wunderlistApi /userInfo");
+    });
 });
 
 //endpoint pour obtenir images achetables
