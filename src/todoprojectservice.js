@@ -1,15 +1,15 @@
-const DBService = require('./dbservice');
+const DB = require('./db');
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 class ToDoProjectService {
     constructor() {
-        this.dbService = new DBService();
+        this.db = new DB();
         this.isConnected = false;
     }
 
     connect() {
-        return this.dbService.connect();
+        return this.db.connect();
     }
 
     computeScore(task) {
@@ -33,7 +33,7 @@ class ToDoProjectService {
     }
 
     updateUser(userId, completedTasks) {
-        return this.dbService.createOrGetUser()
+        return this.db.createOrGetUser(userId)
             .then((user) => {
                 // Getting the unhandled tasks
                 let unhandledTasks = completedTasks
@@ -47,27 +47,37 @@ class ToDoProjectService {
                 // Adding to handled tasks
                 user.handledTasks.push(...unhandledTasks.map(t => t.id));
 
+                //console.log(user);
                 // saving the user 
-                return user.save().then(() => { return user; });
+                return user.save();
             });
     }
 
     buyImage(userId, imageId) {
-        return this.dbService.createOrGetUser()
+        return this.db.createOrGetUser(userId)
             .then((user) => {
-                user.buyImage(imageId);
-
-                // saving the user 
-                return user.save().then(() => { return user; });
+                return user.buyImage(imageId)
+                    .then(() => user.save());
             });
+
     }
 
+
+
     getUserInfo(userId) {
-        return this.dbService.createOrGetUser(userId)
-            .then(u => {
+        return this.db.createOrGetUser(userId)
+            .then(u => { // Making it client-specific
+                let cleanedImages = [];
+                u.ownedImages.forEach(i => {
+                    cleanedImages.push({
+                        value:i.value,
+                        imageId:i.imageId
+                    });
+                });
+
                 return {
                     gold: u.gold,
-                    ownedImages: u.ownedImages,
+                    ownedImages: cleanedImages,
                     availableImagesToBuy: u.getAvailableImagesToBuy()
                 }
             });

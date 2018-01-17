@@ -40,4 +40,7 @@ service.connect()
         return service.buyImage(3212, 1);
     }).then(() => {
         return service.getUserInfo(3212);
-    }).then((userinfo) => console.log(userinfo));
+    }).then((userInfo) =>{
+        //console.log("tada");
+        console.log(userInfo);
+    });

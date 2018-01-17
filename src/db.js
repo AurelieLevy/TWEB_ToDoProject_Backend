@@ -36,11 +36,11 @@ userSchema.methods.addGold = function (value) {
 userSchema.methods.getAvailableImagesToBuy = function () {
     // Removing the images already owned from the full list
     // https://stackoverflow.com/questions/5767325/how-do-i-remove-a-particular-element-from-an-array-in-javascript
-    return availableImages.filter(item => !this.ownedImages.map(i => i.imageId).includes(item));
+    return availableImages.filter(item => !this.ownedImages.map(i => i.imageId).includes(item.imageId));
 }
 
 userSchema.methods.buyImage = function (id) {
-    return new Promise(() => {
+    return new Promise((resolve) => {
         // Getting the image from the list of avaiable images
         let image = availableImages.find(i => i.imageId == id);
 
@@ -53,6 +53,8 @@ userSchema.methods.buyImage = function (id) {
         // Effectively buying the image
         this.gold -= image.value;
         this.ownedImages.push(image);
+
+        resolve();
         //console.log(image);
     });
 }
@@ -62,7 +64,7 @@ const User = mongoose.model('User', userSchema);
 
 // ----------------------------
 
-class DBService {
+class DB {
     constructor() {
         mongoose.connect(url, { useMongoClient: true });
     }
@@ -95,4 +97,4 @@ class DBService {
     }
 }
 
-module.exports = DBService;
+module.exports = DB;
