@@ -119,32 +119,37 @@ app.get('/userInfo', function (req, res) {
 
 app.get('/images', function (req, res) {
     var token = req.headers['x-access-token'];
-    if (req.query.filter == "paid") {
-        //endpoint pour obtenir images achetables
+    if (req.query.filter == "buyable") {
+        //endpoint pour obtenir images achetable
         console.log("Asking paid images received");
-        getUserId(token).then(userId => {
-            return service.getUserInfo(userId);
-        }).then(tabImages => {
-            res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify(tabImages.ownedImages));
-        });;
-
-    }
-    else if (req.query.filter == "solded") {
-        //endpoint pour obtenir images deja achetees
-        console.log("Asking solded images received");
         getUserId(token).then(userId => {
             return service.getUserInfo(userId);
         }).then(tabImages => {
             res.setHeader('Content-Type', 'application/json');
             res.send(JSON.stringify(tabImages.availableImagesToBuy));
         });;
+
+    }
+    else if (req.query.filter == "owned") {
+        //endpoint pour obtenir images deja achetees
+        console.log("Asking solded images received");
+        getUserId(token).then(userId => {
+            return service.getUserInfo(userId);
+        }).then(tabImages => {
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(tabImages.ownedImages));
+        });;
     }
 });
 
 //endpoint pour achat image precise
-app.get('/images/idImage', function (req, res) {
-
+app.post('/images/idImage', function (req, res) {
+    var token = req.headers['x-access-token'];
+    var imageId = req.body.idImage;
+    console.log("ID of the image to paid: " + imageId);
+    getUserId(token).then(userId => {
+        return service.buyImage(userId, imageId);
+    });
 });
 
 function getUserInformations(token) {

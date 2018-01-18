@@ -62,8 +62,6 @@ class ToDoProjectService {
 
     }
 
-
-
     getUserInfo(userId) {
         return this.db.createOrGetUser(userId)
             .then(u => { // Making it client-specific
