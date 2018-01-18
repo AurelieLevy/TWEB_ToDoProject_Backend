@@ -65,6 +65,13 @@ class ToDoProjectService {
             .then((user) => {
                 return user.buyImage(imageId)
                     .then(() => user.save());
+            })
+            .then(image => {
+                return {
+                    imageId : imageId,
+                    value : ,
+                    url :
+                }
             });
 
     }

@@ -46,7 +46,7 @@ format réponse:[
 ]
 
 5) achat image précise
-POST /images/idImage
+POST /images/:idImage
 Header: x-access-token
 {
     "idImage":<nombre>
@@ -183,6 +183,16 @@ app.post('/images/:idImage', function (req, res) {
     getWunderlistUser(token)
         .then(user => {
             return service.buyImage(user.userId, imageId);
+        }).then((image) => {
+            var jsonToSend = {
+                "idImage": image.imageId,
+                "valeur": image.value,
+                "url": image.url
+            };
+            //
+
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(jsonToSend));
         });
 });
 
@@ -217,7 +227,7 @@ function updateUser(userId, token) {
             for (var i = 0; i < lists.length; i++) {
                 promisesArray.push(getCompletedTasksOfAList(lists[i])
                     .then((list) => {
-                       arrayCompletedTasks = arrayCompletedTasks.concat(list);
+                        arrayCompletedTasks = arrayCompletedTasks.concat(list);
                     }));
             }
             Promise.all(promisesArray)
