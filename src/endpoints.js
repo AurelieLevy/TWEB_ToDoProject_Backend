@@ -62,7 +62,19 @@ Header: x-access-token
 
 format réponse:
 {
-
+    "id": 3372483925,
+    "created_at": "2017-12-10T19:42:46.686Z",
+    "created_by_id": 77670624,
+    "created_by_request_id": "16aab5bba3589ff71989:nEOJbegAAAA=:cdf8c718-5fec-4ba0-9192-d9889c5e7817:77670624:4926",
+    "due_date": "2017-12-17",
+    "completed": true,
+    "completed_at": "2017-12-17T08:57:06.835Z",
+    "completed_by_id": 77670624,
+    "starred": true,
+    "list_id": 321144246,
+    "revision": 7,
+    "title": "NOEL avec potos",
+    "type": "task"
 }
 */
 
@@ -121,11 +133,12 @@ app.post('/access_token', function (req, res) {
 app.get('/user_info', function (req, res) {
     var token = req.headers['x-access-token'];
     console.log("token: " + token)
-    getUserInformations(token).then(jsonToSend => {
-        res.setHeader('Content-Type', 'application/json');
-        res.send(JSON.stringify(jsonToSend));
-        console.log("User infos sended to the client");
-    });
+    getUserInformations(token)
+        .then(jsonToSend => {
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(jsonToSend));
+            console.log("User infos sended to the client");
+        });
 
 });
 
@@ -145,12 +158,13 @@ app.get('/images', function (req, res) {
     else if (req.query.filter == "owned") {
         //endpoint pour obtenir images deja achetees
         console.log("Asking solded images received");
-        getUserId(token).then(userId => {
-            return service.getUserInfo(userId);
-        }).then(tabImages => {
-            res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify(tabImages.ownedImages));
-        });;
+        getUserId(token)
+            .then(userId => {
+                return service.getUserInfo(userId);
+            }).then(tabImages => {
+                res.setHeader('Content-Type', 'application/json');
+                res.send(JSON.stringify(tabImages.ownedImages));
+            });
     }
 });
 
@@ -165,37 +179,28 @@ app.post('/images/id_image', function (req, res) {
 });
 
 //endpoint pour obtenir toutes les taches terminees de l'utilisateur
-app.get('/taches', function(req, res) {
+app.get('/taches', function (req, res) {
     var token = req.headers['x-access-token'];
-    getAllListsByWunderlist(token);
-    //obtenir depuis wunderlist les taches terminees
-//TODO
+    var arrayCompletedTasks = [];
+    var promisesArray = [];
+    getAllListsByWunderlist(token)
+        .then(lists => {
+            for (var i = 0; i < lists.length; i++) {
+                promisesArray.push(getCompletedTasksOfAList(lists[i])
+                    .then((list) => {
+                        arrayCompletedTasks.push(list);
+                    }));
+            }
+            Promise.all(promisesArray)
+                .then(() => {
+                    res.setHeader('Content-Type', 'application/json');
+                    res.send(JSON.stringify(arrayCompletedTasks));
+                });
+            console.log("get completed tasks");
+        });
 });
 
-function getFinishedTasks(lists){
-    /*var wunderlistAPI = new WunderlistSDK({
-        'completed': true,
-        'clientID': wunderlistInfo.client_id
-    });
-    return new Promise((resolve, reject) => {
-        wunderlistAPI.http.user.all()
-            .done(function (lists) {
-                //DO STUFF
-                var userId = lists.id;
-                var userName = lists.name;
-                var jsonToSend = {
-                    'userId': userId,
-                    'userName': userName
-                };
-                resolve(jsonToSend);
-            })
-            .fail(function () {
-                console.error("Problem with wunderlistApi /userInfo");
-            });
-    });*/
-}
-
-function getAllListsByWunderlist(token){
+function getAllListsByWunderlist(token) {
     var wunderlistAPI = new WunderlistSDK({
         'accessToken': token,
         'clientID': wunderlistInfo.client_id
@@ -203,19 +208,28 @@ function getAllListsByWunderlist(token){
     return new Promise((resolve, reject) => {
         wunderlistAPI.http.lists.all()
             .done(function (lists) {
-                //DO STUFF
-                /*var userId = lists.id;
-                var userName = lists.name;
-                var jsonToSend = {
-                    'userId': userId,
-                    'userName': userName
-                };
-                resolve(jsonToSend);*/
-                var lists = lists;
-                console.log("lel");
+                resolve(lists);
             })
             .fail(function () {
-                console.error("Problem with wunderlistApi /userInfo");
+                console.error("Problem with wunderlistApi function getAllListsByWunderlist");
+            });
+    });
+}
+
+function getCompletedTasksOfAList(list) {
+    var listId = list.id;
+    var completed = true;
+    var wunderlistAPI = new WunderlistSDK({
+        'completed': true,
+        'list_id': listId
+    });
+    return new Promise((resolve, reject) => {
+        wunderlistAPI.http.tasks.forList(listId, completed)
+            .done(function (tasks, statusCode) {
+                resolve(tasks);
+            })
+            .fail(function () {
+                console.error("Problem with getCompletedTasksOfAList");
             });
     });
 }
@@ -228,7 +242,6 @@ function getUserInformations(token) {
     return new Promise((resolve, reject) => {
         wunderlistAPI.http.user.all()
             .done(function (lists) {
-                //DO STUFF
                 var userId = lists.id;
                 var userName = lists.name;
                 var jsonToSend = {
@@ -238,7 +251,7 @@ function getUserInformations(token) {
                 resolve(jsonToSend);
             })
             .fail(function () {
-                console.error("Problem with wunderlistApi /userInfo");
+                console.error("Problem with getUserInformations");
             });
     });
 
