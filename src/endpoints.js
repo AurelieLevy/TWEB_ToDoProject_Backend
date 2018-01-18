@@ -62,12 +62,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 var WunderlistSDK = require('wunderlist');
-/*var wunderlistAPI = new WunderlistSDK({
-  'accessToken': 'a user access_token',
-  'clientID': 'your client_id'
-});*/
-
 var wunderlistInfo = require('../ressources/wunderlist_info.json');
+
 
 var rp = require('request-promise');
 
@@ -94,6 +90,7 @@ app.post('/accessToken', function (req, res) {
             console.log("accessToken sended to wunderlist API");
             console.log("Token: " + parsedBody.access_token);
             res.json(parsedBody);//renvoie au client
+            console.log("Code sended to the client")
         })
         .catch(function (err) {
             console.log("POST to get token to wunderlist API failed");
@@ -108,7 +105,6 @@ app.get('/userInfo', function (req, res) {
         'accessToken': token,
         'clientID': wunderlistInfo.client_id
     });
-    //wunderlistAPI.http.lists.all()
     wunderlistAPI.http.user.all()
     .done(function (lists){
         //DO STUFF
@@ -118,22 +114,28 @@ app.get('/userInfo', function (req, res) {
             'userId': userId,
             'userName': userName
         };
-        res.json(jsonToSend);
-        console.log(lists.id);
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify(jsonToSend));
+        console.log("User infos sended to the client");
     })
     .fail(function (){
         console.error("Problem with wunderlistApi /userInfo");
     });
 });
 
-//endpoint pour obtenir images achetables
-app.get('/images?filter=solded', function (req, res) {
+app.get('/images', function (req, res) {
+    var token = req.headers['x-access-token'];
+    if(req.query.filter == "paid"){
+        //endpoint pour obtenir images achetables
+        console.log("paid");
 
+    }
+    else if(req.query.filter == "solded"){
+        //endpoint pour obtenir images deja achetees
+        console.log("solded");
+    }
 });
-//endpoint pour obtenir images deja achetees
-app.get('/images?filter=paid', function (req, res) {
 
-});
 //endpoint pour achat image precise
 app.get('/images/idImage', function (req, res) {
 
