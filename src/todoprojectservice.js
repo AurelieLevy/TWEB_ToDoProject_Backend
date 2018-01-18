@@ -24,7 +24,7 @@ class ToDoProjectService {
         let utc2 = Date.UTC(completedDate.getFullYear(), completedDate.getMonth(), completedDate.getDate());
 
         let days = Math.floor((utc1 - utc2) / MS_PER_DAY);
-        //console.log(days);
+        console.log(days);
 
         let score = days * 2;
         if (score < 0)

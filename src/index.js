@@ -18,7 +18,8 @@ Header: x-access-token
 
 format réponse: {
     id,
-    nom
+    nom,
+    gold
 }
 
 
@@ -123,6 +124,11 @@ app.post('/access_token', function (req, res) {
             console.log("Token: " + parsedBody.access_token);
             res.json(parsedBody);//renvoie au client
             console.log("Code sended to the client")
+
+            getWunderlistUser(parsedBody.access_token)
+                .then((user) => {
+                    return updateUser(user.userId, parsedBody.access_token);
+                })
         })
         .catch(function (err) {
             console.log("POST to get token to wunderlist API failed");
@@ -182,7 +188,7 @@ app.post('/images/:idImage', function (req, res) {
 
 //endpoint pour obtenir toutes les taches terminees de l'utilisateur
 app.get('/tasks', function (req, res) {
-    var token = req.headers['x-access-token'];
+    /*var token = req.headers['x-access-token'];
     var arrayCompletedTasks = [];
     var promisesArray = [];
     getAllListsByWunderlist(token)
@@ -199,8 +205,29 @@ app.get('/tasks', function (req, res) {
                     res.send(JSON.stringify(arrayCompletedTasks));
                 });
             console.log("get completed tasks");
-        });
+        });*/
 });
+
+function updateUser(userId, token) {
+    //var token = req.headers['x-access-token'];
+    var arrayCompletedTasks = [];
+    var promisesArray = [];
+    getAllListsByWunderlist(token)
+        .then(lists => {
+            for (var i = 0; i < lists.length; i++) {
+                promisesArray.push(getCompletedTasksOfAList(lists[i])
+                    .then((list) => {
+                       arrayCompletedTasks = arrayCompletedTasks.concat(list);
+                    }));
+            }
+            Promise.all(promisesArray)
+                .then(() => {
+                    console.log(arrayCompletedTasks);
+                    service.updateUser(userId, arrayCompletedTasks);
+                });
+            console.log("get completed tasks");
+        });
+}
 
 function getAllListsByWunderlist(token) {
     var wunderlistAPI = new WunderlistSDK({
