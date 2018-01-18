@@ -64,12 +64,20 @@ app.use(bodyParser.json());
 var WunderlistSDK = require('wunderlist');
 var wunderlistInfo = require('../ressources/wunderlist_info.json');
 
+const ToDoProjectService = require('./todoprojectservice');
+const service = new ToDoProjectService();
+
 
 var rp = require('request-promise');
 
 app.set('port', (process.env.PORT || 5000));
 
-
+service.connect()
+    .then(() => {
+        app.listen(app.get('port'), function () {
+            console.log('Node app is running on port', app.get('port'));
+        });
+    });
 
 //endpoint pour connexion
 app.post('/accessToken', function (req, res) {
@@ -101,38 +109,36 @@ app.post('/accessToken', function (req, res) {
 app.get('/userInfo', function (req, res) {
     var token = req.headers['x-access-token'];
     console.log("token: " + token)
-    var wunderlistAPI = new WunderlistSDK({
-        'accessToken': token,
-        'clientID': wunderlistInfo.client_id
-    });
-    wunderlistAPI.http.user.all()
-    .done(function (lists){
-        //DO STUFF
-        var userId = lists.id;
-        var userName = lists.name;
-        var jsonToSend = {
-            'userId': userId,
-            'userName': userName
-        };
+    getUserInformations(token).then(jsonToSend => {
         res.setHeader('Content-Type', 'application/json');
         res.send(JSON.stringify(jsonToSend));
         console.log("User infos sended to the client");
-    })
-    .fail(function (){
-        console.error("Problem with wunderlistApi /userInfo");
     });
+
 });
 
 app.get('/images', function (req, res) {
     var token = req.headers['x-access-token'];
-    if(req.query.filter == "paid"){
+    if (req.query.filter == "paid") {
         //endpoint pour obtenir images achetables
-        console.log("paid");
+        console.log("Asking paid images received");
+        getUserId(token).then(userId => {
+            return service.getUserInfo(userId);
+        }).then(tabImages => {
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(tabImages.ownedImages));
+        });;
 
     }
-    else if(req.query.filter == "solded"){
+    else if (req.query.filter == "solded") {
         //endpoint pour obtenir images deja achetees
-        console.log("solded");
+        console.log("Asking solded images received");
+        getUserId(token).then(userId => {
+            return service.getUserInfo(userId);
+        }).then(tabImages => {
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(tabImages.availableImagesToBuy));
+        });;
     }
 });
 
@@ -141,6 +147,36 @@ app.get('/images/idImage', function (req, res) {
 
 });
 
-app.listen(app.get('port'), function () {
-    console.log('Node app is running on port', app.get('port'));
-});
+function getUserInformations(token) {
+    var wunderlistAPI = new WunderlistSDK({
+        'accessToken': token,
+        'clientID': wunderlistInfo.client_id
+    });
+    return new Promise((resolve, reject) => {
+        wunderlistAPI.http.user.all()
+            .done(function (lists) {
+                //DO STUFF
+                var userId = lists.id;
+                var userName = lists.name;
+                var jsonToSend = {
+                    'userId': userId,
+                    'userName': userName
+                };
+                resolve(jsonToSend);
+            })
+            .fail(function () {
+                console.error("Problem with wunderlistApi /userInfo");
+            });
+    });
+
+}
+
+function getUserId(token) {
+    return new Promise((resolve, reject) => {
+        getUserInformations(token).then(jsonInfo => {
+            resolve(jsonInfo.userId);
+        });
+    });
+
+}
+
