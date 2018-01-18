@@ -175,8 +175,8 @@ app.post('/images/:idImage', function (req, res) {
     var imageId = req.params.idImage;
     console.log("ID of the image to paid: " + imageId);
     getWunderlistUser(token)
-        .then(userId => {
-            return service.buyImage(userId, imageId);
+        .then(user => {
+            return service.buyImage(user.userId, imageId);
         });
 });
 
@@ -254,7 +254,7 @@ function getWunderlistUser(token) {
                 resolve(jsonToSend);
             })
             .fail(function () {
-                console.error("Problem with getUser");
+                console.error("Problem with getWunderlistUser");
             });
     });
 
@@ -262,6 +262,7 @@ function getWunderlistUser(token) {
 
 function getWunderlistUserWithGold(token) {
     let u;
+    console.log("getWunderlistUserWithGold")
     return getWunderlistUser(token)
         .then((wunderlistUser) => {
             u = wunderlistUser;
