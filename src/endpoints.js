@@ -179,7 +179,7 @@ app.post('/images/id_image', function (req, res) {
 });
 
 //endpoint pour obtenir toutes les taches terminees de l'utilisateur
-app.get('/taches', function (req, res) {
+app.get('/tasks', function (req, res) {
     var token = req.headers['x-access-token'];
     var arrayCompletedTasks = [];
     var promisesArray = [];
