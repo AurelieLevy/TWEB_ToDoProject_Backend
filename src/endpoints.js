@@ -47,10 +47,22 @@ format réponse:[
 5) achat image précise
 POST /images/idImage
 Header: x-access-token
+{
+    "idImage":<nombre>
+}
 
 format réponse:
 {
     idImage, valeur, url
+}
+
+//Recuperation de toutes les taches finies d'un user
+GET /taches
+Header: x-access-token
+
+format réponse:
+{
+
 }
 */
 
@@ -80,7 +92,7 @@ service.connect()
     });
 
 //endpoint pour connexion
-app.post('/accessToken', function (req, res) {
+app.post('/access_token', function (req, res) {
     var code = req.body.code;
     console.log("Code recu: " + code)
     var options = {
@@ -106,7 +118,7 @@ app.post('/accessToken', function (req, res) {
 });
 
 //endpoint pour info user
-app.get('/userInfo', function (req, res) {
+app.get('/user_info', function (req, res) {
     var token = req.headers['x-access-token'];
     console.log("token: " + token)
     getUserInformations(token).then(jsonToSend => {
@@ -143,7 +155,7 @@ app.get('/images', function (req, res) {
 });
 
 //endpoint pour achat image precise
-app.post('/images/idImage', function (req, res) {
+app.post('/images/id_image', function (req, res) {
     var token = req.headers['x-access-token'];
     var imageId = req.body.idImage;
     console.log("ID of the image to paid: " + imageId);
@@ -151,6 +163,62 @@ app.post('/images/idImage', function (req, res) {
         return service.buyImage(userId, imageId);
     });
 });
+
+//endpoint pour obtenir toutes les taches terminees de l'utilisateur
+app.get('/taches', function(req, res) {
+    var token = req.headers['x-access-token'];
+    getAllListsByWunderlist(token);
+    //obtenir depuis wunderlist les taches terminees
+//TODO
+});
+
+function getFinishedTasks(lists){
+    /*var wunderlistAPI = new WunderlistSDK({
+        'completed': true,
+        'clientID': wunderlistInfo.client_id
+    });
+    return new Promise((resolve, reject) => {
+        wunderlistAPI.http.user.all()
+            .done(function (lists) {
+                //DO STUFF
+                var userId = lists.id;
+                var userName = lists.name;
+                var jsonToSend = {
+                    'userId': userId,
+                    'userName': userName
+                };
+                resolve(jsonToSend);
+            })
+            .fail(function () {
+                console.error("Problem with wunderlistApi /userInfo");
+            });
+    });*/
+}
+
+function getAllListsByWunderlist(token){
+    var wunderlistAPI = new WunderlistSDK({
+        'accessToken': token,
+        'clientID': wunderlistInfo.client_id
+    });
+    return new Promise((resolve, reject) => {
+        wunderlistAPI.http.lists.all()
+            .done(function (lists) {
+                //DO STUFF
+                /*var userId = lists.id;
+                var userName = lists.name;
+                var jsonToSend = {
+                    'userId': userId,
+                    'userName': userName
+                };
+                resolve(jsonToSend);*/
+                var lists = lists;
+                console.log("lel");
+            })
+            .fail(function () {
+                console.error("Problem with wunderlistApi /userInfo");
+            });
+    });
+}
 
 function getUserInformations(token) {
     var wunderlistAPI = new WunderlistSDK({
