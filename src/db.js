@@ -39,6 +39,10 @@ userSchema.methods.getAvailableImagesToBuy = function () {
     return availableImages.filter(item => !this.ownedImages.map(i => i.imageId).includes(item.imageId));
 }
 
+/*userSchema.methods.getAAvailableImageById = function(id) {
+    return availableImages.filter(item => !this.ownedImages.map(i=>i.imageId).includes(id));
+}*/
+
 userSchema.methods.buyImage = function (id) {
     return new Promise((resolve) => {
         // Getting the image from the list of avaiable images
@@ -53,7 +57,8 @@ userSchema.methods.buyImage = function (id) {
         // Effectively buying the image
         this.gold -= image.value;
         this.ownedImages.push(image);
-
+console.log(this.ownedImages);
+        
         resolve();
         //console.log(image);
     });

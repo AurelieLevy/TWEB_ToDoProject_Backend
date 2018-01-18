@@ -60,21 +60,26 @@ class ToDoProjectService {
             });
     }
 
+    /* getAvailableImageById(userId, imageId) {
+         return this.db.createOrGetUser(userId)
+             .then((user) => {
+                 console.log(user.getAAvailableImageById(imageId));
+                 return user.getAAvailableImageById(imageId);
+             });
+     }*/
+
+
     buyImage(userId, imageId) {
+        console.log("Achat en court");
         return this.db.createOrGetUser(userId)
             .then((user) => {
+                console.log("user: " + user);
                 return user.buyImage(imageId)
                     .then(() => user.save());
-            })
-            .then(image => {
-                return {
-                    imageId : imageId,
-                    value : ,
-                    url :
-                }
             });
-
     }
+
+
 
     getUserInfo(userId) {
         return this.db.createOrGetUser(userId)
