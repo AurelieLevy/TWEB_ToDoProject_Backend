@@ -94,7 +94,7 @@ const service = new ToDoProjectService();
 
 var rp = require('request-promise');
 
-app.set('port', (process.env.PORT || 5000));
+app.set('port', (process.env.PORT || 80));
 
 service.connect()
     .then(() => {
