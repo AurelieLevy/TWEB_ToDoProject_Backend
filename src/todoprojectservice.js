@@ -13,10 +13,16 @@ class ToDoProjectService {
     }
 
     computeScore(task) {
+        // There is not necessary a due date
+        if (task.due_date == null)
+            return 0;
+
         let dueDate = new Date(task.due_date);
         let completedDate = new Date(task.completed_at);
 
         // Computing score
+        console.log(dueDate);
+        console.log(completedDate);
 
         // Difference between 2 date
         // https://stackoverflow.com/questions/3224834/get-difference-between-2-dates-in-javascript
@@ -24,6 +30,7 @@ class ToDoProjectService {
         let utc2 = Date.UTC(completedDate.getFullYear(), completedDate.getMonth(), completedDate.getDate());
 
         let days = Math.floor((utc1 - utc2) / MS_PER_DAY);
+
         console.log(days);
 
         let score = days * 2;
@@ -68,8 +75,8 @@ class ToDoProjectService {
                 let cleanedImages = [];
                 u.ownedImages.forEach(i => {
                     cleanedImages.push({
-                        value:i.value,
-                        imageId:i.imageId
+                        value: i.value,
+                        imageId: i.imageId
                     });
                 });
 
