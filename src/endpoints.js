@@ -24,7 +24,7 @@ format réponse: {
 
 
 3) obtenir les images achetables
-GET /images?filter=solded
+GET /images?filter=buyable
 Header: x-access-token
 
 format réponse:[
@@ -35,7 +35,7 @@ format réponse:[
 
 
 4) obtenir les images déjà achetées
-GET /images?filter=paid
+GET /images?filter=owned
 Header: x-access-token
 
 format réponse:[
@@ -133,7 +133,7 @@ app.post('/access_token', function (req, res) {
 app.get('/user_info', function (req, res) {
     var token = req.headers['x-access-token'];
     console.log("token: " + token)
-    getUserInformations(token)
+    getWunderlistUserWithGold(token)
         .then(jsonToSend => {
             res.setHeader('Content-Type', 'application/json');
             res.send(JSON.stringify(jsonToSend));
@@ -147,20 +147,21 @@ app.get('/images', function (req, res) {
     if (req.query.filter == "buyable") {
         //endpoint pour obtenir images achetable
         console.log("Asking paid images received");
-        getUserId(token).then(userId => {
-            return service.getUserInfo(userId);
-        }).then(tabImages => {
-            res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify(tabImages.availableImagesToBuy));
-        });;
+        getWunderlistUser(token)
+            .then(user => {
+                return service.getUserInfo(user.id);
+            }).then(tabImages => {
+                res.setHeader('Content-Type', 'application/json');
+                res.send(JSON.stringify(tabImages.availableImagesToBuy));
+            });;
 
     }
     else if (req.query.filter == "owned") {
         //endpoint pour obtenir images deja achetees
         console.log("Asking solded images received");
-        getUserId(token)
-            .then(userId => {
-                return service.getUserInfo(userId);
+        getWunderlistUser(token)
+            .then(user => {
+                return service.getUserInfo(user.id);
             }).then(tabImages => {
                 res.setHeader('Content-Type', 'application/json');
                 res.send(JSON.stringify(tabImages.ownedImages));
@@ -173,9 +174,10 @@ app.post('/images/:idImage', function (req, res) {
     var token = req.headers['x-access-token'];
     var imageId = req.params.idImage;
     console.log("ID of the image to paid: " + imageId);
-    getUserId(token).then(userId => {
-        return service.buyImage(userId, imageId);
-    });
+    getWunderlistUser(token)
+        .then(userId => {
+            return service.buyImage(userId, imageId);
+        });
 });
 
 //endpoint pour obtenir toutes les taches terminees de l'utilisateur
@@ -234,7 +236,8 @@ function getCompletedTasksOfAList(list) {
     });
 }
 
-function getUserInformations(token) {
+function getWunderlistUser(token) {
+
     var wunderlistAPI = new WunderlistSDK({
         'accessToken': token,
         'clientID': wunderlistInfo.client_id
@@ -246,23 +249,36 @@ function getUserInformations(token) {
                 var userName = lists.name;
                 var jsonToSend = {
                     'userId': userId,
-                    'userName': userName
+                    'userName': userName,
                 };
                 resolve(jsonToSend);
             })
             .fail(function () {
-                console.error("Problem with getUserInformations");
+                console.error("Problem with getUser");
             });
     });
 
 }
 
-function getUserId(token) {
+function getWunderlistUserWithGold(token) {
+    let u;
+    return getWunderlistUser(token)
+        .then((wunderlistUser) => {
+            u = wunderlistUser;
+            return service.getUserInfo(wunderlistUser.userId);
+        }).then(userInfo => {
+            u.gold = userInfo.gold;
+            return u;
+        })
+}
+
+/*function getUserId(token) {
     return new Promise((resolve, reject) => {
-        getUserInformations(token).then(jsonInfo => {
-            resolve(jsonInfo.userId);
-        });
+        getUserInformations(token)
+            .then(jsonInfo => {
+                resolve(jsonInfo.userId);
+            });
     });
 
-}
+}*/
 
