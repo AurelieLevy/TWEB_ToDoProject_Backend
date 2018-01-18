@@ -169,9 +169,9 @@ app.get('/images', function (req, res) {
 });
 
 //endpoint pour achat image precise
-app.post('/images/id_image', function (req, res) {
+app.post('/images/:idImage', function (req, res) {
     var token = req.headers['x-access-token'];
-    var imageId = req.body.idImage;
+    var imageId = req.params.idImage;
     console.log("ID of the image to paid: " + imageId);
     getUserId(token).then(userId => {
         return service.buyImage(userId, imageId);
