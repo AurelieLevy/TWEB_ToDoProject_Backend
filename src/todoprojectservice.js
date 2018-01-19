@@ -10,6 +10,7 @@ class ToDoProjectService {
 
     connect() {
         return this.db.connect();
+        this.isConnected = true;
     }
 
     computeScore(task) {
@@ -32,7 +33,7 @@ class ToDoProjectService {
 
         let days = Math.floor((utc1 - utc2) / MS_PER_DAY);
 
-        console.log(days);
+        //console.log(days);
 
         let score = days * 2;
         if (score < 0)
@@ -55,7 +56,7 @@ class ToDoProjectService {
                 // Adding to handled tasks
                 user.handledTasks.push(...unhandledTasks.map(t => t.id));
 
-                console.log(user);
+                //console.log(user);
                 // saving the user 
                 return user.save();
             });
@@ -74,10 +75,11 @@ class ToDoProjectService {
         console.log("Achat en court");
         return this.db.createOrGetUser(userId)
             .then((user) => {
-                console.log("user: " + user);
                 return user.buyImage(imageId)
-                    .then(() => user.save());
-            });
+            }).then((user) => { 
+                console.log("user: " + user);
+                return user.save();
+             });
     }
 
 
@@ -93,7 +95,7 @@ class ToDoProjectService {
                     });
                 });
 
-                console.log(u);
+                //console.log(u);
 
                 return {
                     gold: u.gold,

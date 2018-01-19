@@ -26,7 +26,7 @@ let userSchema = mongoose.Schema({
     wunderlistId: Number, // The user wunderlist Id
     gold: Number, // The money the user has
     ownedImages: [{ imageId: Number, value: Number }], // The images the user own
-    handledTasks:[Number] // The wunderlist taskIds that has been already handled
+    handledTasks: [Number] // The wunderlist taskIds that has been already handled
 });
 
 userSchema.methods.addGold = function (value) {
@@ -57,9 +57,9 @@ userSchema.methods.buyImage = function (id) {
         // Effectively buying the image
         this.gold -= image.value;
         this.ownedImages.push(image);
-console.log(this.ownedImages);
-        
-        resolve();
+        //console.log(this.ownedImages);
+
+        resolve(this);
         //console.log(image);
     });
 }
@@ -79,7 +79,7 @@ class DB {
             .then((database) => {
                 this.db = database;
                 console.log("connection to db ready");
-                
+
                 // Cleaning user 
                 return User.remove({});
             })
@@ -87,18 +87,23 @@ class DB {
     }
 
     createOrGetUser(userId) {
+        console.log("userIDDDDD: " + userId);
         return User.findOne({ wunderlistId: userId })
             .then((user) => {
                 if (user == null) {
+                    console.log("CREATING A USER")
                     // Creating a new user if not exists
                     user = new User({
                         wunderlistId: userId,
                         gold: 0
                     });
-                    user.save();
                 }
-                console.log(user);
-                return user;
+
+                //console.log(user);
+                return user.save()
+                    .then(() => {
+                        return user;
+                    });
             });
     }
 }

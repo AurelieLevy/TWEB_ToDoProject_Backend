@@ -165,7 +165,7 @@ app.get('/images', function (req, res) {
         console.log("Asking buyable images received");
         getWunderlistUser(token)
             .then(user => {
-                return service.getUserInfo(user.id);
+                return service.getUserInfo(user.userId);
             }).then(tabImages => {
                 res.setHeader('Content-Type', 'application/json');
                 res.send(JSON.stringify(tabImages.availableImagesToBuy));
@@ -177,7 +177,7 @@ app.get('/images', function (req, res) {
         console.log("Asking owned images received");
         getWunderlistUser(token)
             .then(user => {
-                return service.getUserInfo(user.id);
+                return service.getUserInfo(user.userId);
             }).then(tabImages => {
                 res.setHeader('Content-Type', 'application/json');
                 res.send(JSON.stringify(tabImages.ownedImages));
