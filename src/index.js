@@ -46,7 +46,7 @@ format réponse:[
 ]
 
 5) achat image précise
-POST /images/idImage
+POST /images/:idImage
 Header: x-access-token
 {
     "idImage":<nombre>
@@ -97,12 +97,13 @@ var rp = require('request-promise');
 
 app.set('port', (process.env.PORT || 5000));
 
-app.use(function(req, res, next) {
+// Enabling CORS for the request responded to the client
+app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-access-token");
     
     next();
-  });
+});
 
 service.connect()
     .then(() => {
@@ -146,7 +147,10 @@ app.post('/access_token', function (req, res) {
 app.get('/user_info', function (req, res) {
     var token = req.headers['x-access-token'];
     console.log("token: " + token)
-    getWunderlistUserWithGold(token)
+
+    getWunderlistUser(token)
+        .then((user) => { return updateUser(user.userId, token); })
+        .then(() => { return getWunderlistUserWithGold(token); })
         .then(jsonToSend => {
             res.setHeader('Content-Type', 'application/json');
             res.send(JSON.stringify(jsonToSend));
@@ -159,10 +163,10 @@ app.get('/images', function (req, res) {
     var token = req.headers['x-access-token'];
     if (req.query.filter == "buyable") {
         //endpoint pour obtenir images achetable
-        console.log("Asking paid images received");
+        console.log("Asking buyable images received");
         getWunderlistUser(token)
             .then(user => {
-                return service.getUserInfo(user.id);
+                return service.getUserInfo(user.userId);
             }).then(tabImages => {
                 res.setHeader('Content-Type', 'application/json');
                 res.send(JSON.stringify(tabImages.availableImagesToBuy));
@@ -171,10 +175,10 @@ app.get('/images', function (req, res) {
     }
     else if (req.query.filter == "owned") {
         //endpoint pour obtenir images deja achetees
-        console.log("Asking solded images received");
+        console.log("Asking owned images received");
         getWunderlistUser(token)
             .then(user => {
-                return service.getUserInfo(user.id);
+                return service.getUserInfo(user.userId);
             }).then(tabImages => {
                 res.setHeader('Content-Type', 'application/json');
                 res.send(JSON.stringify(tabImages.ownedImages));
@@ -189,13 +193,46 @@ app.post('/images/:idImage', function (req, res) {
     console.log("ID of the image to paid: " + imageId);
     getWunderlistUser(token)
         .then(user => {
+            var jsonToSend = {
+                "textTest": "Merci de votre achat"
+            }
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(jsonToSend));
             return service.buyImage(user.userId, imageId);
         });
 });
 
+/*app.post('/i', function (req, res) {
+    var token = req.headers['x-access-token'];
+    var imageId = req.params.idImage;
+    console.log("ID of the image to paid: " + imageId);
+    getWunderlistUser(token)
+        .then(user => {
+            var jsonToSend = {
+                "textTest": "Merci de votre achat"
+            }
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(jsonToSend));
+            return service.buyImage(user.userId, imageId);
+        });
+    /*.then((image) => {
+//TODO
+        var jsonToSend = {
+            "textTest" : "Merci de votre achat"
+        }
+        var jsonToSend = {
+            "idImage": image.imageId,
+            "valeur": image.value,
+            "url": image.url
+        };
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify(jsonToSend));
+    });*/
+//});
+
 //endpoint pour obtenir toutes les taches terminees de l'utilisateur
-app.get('/tasks', function (req, res) {
-    /*var token = req.headers['x-access-token'];
+/*app.get('/tasks', function (req, res) {
+    var token = req.headers['x-access-token'];
     var arrayCompletedTasks = [];
     var promisesArray = [];
     getAllListsByWunderlist(token)
@@ -212,27 +249,26 @@ app.get('/tasks', function (req, res) {
                     res.send(JSON.stringify(arrayCompletedTasks));
                 });
             console.log("get completed tasks");
-        });*/
-});
+        });
+});*/
 
 function updateUser(userId, token) {
     //var token = req.headers['x-access-token'];
     var arrayCompletedTasks = [];
     var promisesArray = [];
-    getAllListsByWunderlist(token)
+    return getAllListsByWunderlist(token)
         .then(lists => {
             for (var i = 0; i < lists.length; i++) {
                 promisesArray.push(getCompletedTasksOfAList(lists[i])
                     .then((list) => {
-                       arrayCompletedTasks = arrayCompletedTasks.concat(list);
+                        arrayCompletedTasks = arrayCompletedTasks.concat(list);
                     }));
             }
-            Promise.all(promisesArray)
+            return Promise.all(promisesArray)
                 .then(() => {
-                    console.log(arrayCompletedTasks);
-                    service.updateUser(userId, arrayCompletedTasks);
+                    console.log("get completed tasks done");
+                    return service.updateUser(userId, arrayCompletedTasks);
                 });
-            console.log("get completed tasks");
         });
 }
 
@@ -286,9 +322,6 @@ function getWunderlistUser(token) {
                     'userName': userName,
                 };
                 resolve(jsonToSend);
-            })
-            .fail(function () {
-                console.error("Problem with getWunderlistUser");
             });
     });
 

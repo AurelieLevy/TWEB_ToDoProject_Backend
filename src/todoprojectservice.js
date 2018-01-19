@@ -10,19 +10,21 @@ class ToDoProjectService {
 
     connect() {
         return this.db.connect();
+        this.isConnected = true;
     }
 
     computeScore(task) {
         // There is not necessary a due date
-        if (task.due_date == null)
+        if (task.due_date == null || task.completed_at == null)
             return 0;
+
 
         let dueDate = new Date(task.due_date);
         let completedDate = new Date(task.completed_at);
 
         // Computing score
-        console.log(dueDate);
-        console.log(completedDate);
+        //console.log(dueDate);
+        //console.log(completedDate);
 
         // Difference between 2 date
         // https://stackoverflow.com/questions/3224834/get-difference-between-2-dates-in-javascript
@@ -31,7 +33,7 @@ class ToDoProjectService {
 
         let days = Math.floor((utc1 - utc2) / MS_PER_DAY);
 
-        console.log(days);
+        //console.log(days);
 
         let score = days * 2;
         if (score < 0)
@@ -60,14 +62,27 @@ class ToDoProjectService {
             });
     }
 
+    /* getAvailableImageById(userId, imageId) {
+         return this.db.createOrGetUser(userId)
+             .then((user) => {
+                 console.log(user.getAAvailableImageById(imageId));
+                 return user.getAAvailableImageById(imageId);
+             });
+     }*/
+
+
     buyImage(userId, imageId) {
+        console.log("Achat en court");
         return this.db.createOrGetUser(userId)
             .then((user) => {
                 return user.buyImage(imageId)
-                    .then(() => user.save());
-            });
-
+            }).then((user) => { 
+                console.log("user: " + user);
+                return user.save();
+             });
     }
+
+
 
     getUserInfo(userId) {
         return this.db.createOrGetUser(userId)
@@ -79,6 +94,8 @@ class ToDoProjectService {
                         imageId: i.imageId
                     });
                 });
+
+                //console.log(u);
 
                 return {
                     gold: u.gold,
