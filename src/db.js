@@ -44,15 +44,19 @@ userSchema.methods.getAvailableImagesToBuy = function () {
 }*/
 
 userSchema.methods.buyImage = function (id) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         // Getting the image from the list of avaiable images
         let image = availableImages.find(i => i.imageId == id);
 
-        if (this.ownedImages.map(i => i.imageId).includes(id))
-            return; // Already owned
+        console.log("leeee");
+        console.log(this.ownedImages);
+
+        if (this.ownedImages.map(i => i.imageId).includes(id)) {
+            reject(new Error("already-owned")); // Already owned
+        }
 
         if (this.gold < image.value)
-            return; // Not enough money
+            reject(new Error("not-enough-gold"));; // Not enough money
 
         // Effectively buying the image
         this.gold -= image.value;

@@ -188,16 +188,24 @@ app.get('/images', function (req, res) {
 //endpoint pour achat image precise
 app.post('/images/:idImage', function (req, res) {
     var token = req.headers['x-access-token'];
-    var imageId = req.params.idImage;
+
+    // a javascript way to convert a string into a number ;-P
+    // (parseInte(imageId))
+    var imageId = req.params.idImage - 1 + 1;
+    
     console.log("ID of the image to paid: " + imageId);
     getWunderlistUser(token)
         .then(user => {
+            return service.buyImage(user.userId, imageId);
+        }).then(() => {
             var jsonToSend = {
-                "textTest": "Merci de votre achat"
+                "got": "Merci de votre achat",
+                "imageId": imageId
             }
             res.setHeader('Content-Type', 'application/json');
             res.send(JSON.stringify(jsonToSend));
-            return service.buyImage(user.userId, imageId);
+        }).catch((err) => {
+            console.log(err);
         });
 });
 
