@@ -81,7 +81,7 @@ class DB {
                 console.log("connection to db ready");
                 
                 // Cleaning user 
-                //return User.remove({});
+                return User.remove({});
             })
             .catch((err) => console.log(err));
     }
@@ -97,6 +97,7 @@ class DB {
                     });
                     user.save();
                 }
+                console.log(user);
                 return user;
             });
     }

@@ -97,6 +97,7 @@ var rp = require('request-promise');
 
 app.set('port', (process.env.PORT || 5000));
 
+// Enabling CORS for the request responded to the client
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -145,7 +146,10 @@ app.post('/access_token', function (req, res) {
 app.get('/user_info', function (req, res) {
     var token = req.headers['x-access-token'];
     console.log("token: " + token)
-    getWunderlistUserWithGold(token)
+
+    getWunderlistUser(token)
+        .then((user) => { return updateUser(user.userId, token); })
+        .then(() => { return getWunderlistUserWithGold(token); })
         .then(jsonToSend => {
             res.setHeader('Content-Type', 'application/json');
             res.send(JSON.stringify(jsonToSend));
@@ -251,7 +255,7 @@ function updateUser(userId, token) {
     //var token = req.headers['x-access-token'];
     var arrayCompletedTasks = [];
     var promisesArray = [];
-    getAllListsByWunderlist(token)
+    return getAllListsByWunderlist(token)
         .then(lists => {
             for (var i = 0; i < lists.length; i++) {
                 promisesArray.push(getCompletedTasksOfAList(lists[i])
@@ -259,12 +263,11 @@ function updateUser(userId, token) {
                         arrayCompletedTasks = arrayCompletedTasks.concat(list);
                     }));
             }
-            Promise.all(promisesArray)
+            return Promise.all(promisesArray)
                 .then(() => {
-                    console.log(arrayCompletedTasks);
-                    service.updateUser(userId, arrayCompletedTasks);
+                    console.log("get completed tasks done");
+                    return service.updateUser(userId, arrayCompletedTasks);
                 });
-            console.log("get completed tasks");
         });
 }
 
@@ -318,9 +321,6 @@ function getWunderlistUser(token) {
                     'userName': userName,
                 };
                 resolve(jsonToSend);
-            })
-            .fail(function () {
-                console.error("Problem with getWunderlistUser");
             });
     });
 

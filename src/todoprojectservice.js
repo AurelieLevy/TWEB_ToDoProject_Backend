@@ -14,15 +14,16 @@ class ToDoProjectService {
 
     computeScore(task) {
         // There is not necessary a due date
-        if (task.due_date == null)
+        if (task.due_date == null || task.completed_at == null)
             return 0;
+
 
         let dueDate = new Date(task.due_date);
         let completedDate = new Date(task.completed_at);
 
         // Computing score
-        console.log(dueDate);
-        console.log(completedDate);
+        //console.log(dueDate);
+        //console.log(completedDate);
 
         // Difference between 2 date
         // https://stackoverflow.com/questions/3224834/get-difference-between-2-dates-in-javascript
@@ -54,7 +55,7 @@ class ToDoProjectService {
                 // Adding to handled tasks
                 user.handledTasks.push(...unhandledTasks.map(t => t.id));
 
-                //console.log(user);
+                console.log(user);
                 // saving the user 
                 return user.save();
             });
@@ -91,6 +92,8 @@ class ToDoProjectService {
                         imageId: i.imageId
                     });
                 });
+
+                console.log(u);
 
                 return {
                     gold: u.gold,
