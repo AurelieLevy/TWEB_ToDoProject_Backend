@@ -46,7 +46,7 @@ class ToDoProjectService {
             .then((user) => {
                 // Getting the unhandled tasks
                 let unhandledTasks = completedTasks
-                    .filter((t) => !user.handledTasks.includes(t.id));
+                    .filter((t) => !user.handledTasks.map(t => t.id).includes(t.id));
 
                 // computing scores
                 let score = unhandledTasks.reduce((score, t1) => score + this.computeScore(t1), 0);
