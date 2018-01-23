@@ -54,7 +54,16 @@ class ToDoProjectService {
                 user.addGold(score);
 
                 // Adding to handled tasks
-                user.handledTasks.push(...unhandledTasks.map(t => t.id));
+                user.handledTasks.push(...unhandledTasks
+                    .map(t => {
+                        return {
+                            title: t.title,
+                            id: t.id,
+                            completed_at: t.completed_at,
+                            due_date: t.due_date,
+                            score: this.computeScore(t)
+                        }
+                    }).filter(t => t.score > 0));
 
                 //console.log(user);
                 // saving the user 
@@ -76,10 +85,10 @@ class ToDoProjectService {
         return this.db.createOrGetUser(userId)
             .then((user) => {
                 return user.buyImage(imageId)
-            }).then((user) => { 
+            }).then((user) => {
                 console.log("user: " + user);
                 return user.save();
-             });
+            });
     }
 
 
@@ -100,7 +109,8 @@ class ToDoProjectService {
                 return {
                     gold: u.gold,
                     ownedImages: cleanedImages,
-                    availableImagesToBuy: u.getAvailableImagesToBuy()
+                    availableImagesToBuy: u.getAvailableImagesToBuy(),
+                    handledTasks: u.handledTasks
                 }
             });
     }

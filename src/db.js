@@ -26,7 +26,7 @@ let userSchema = mongoose.Schema({
     wunderlistId: Number, // The user wunderlist Id
     gold: Number, // The money the user has
     ownedImages: [{ imageId: Number, value: Number }], // The images the user own
-    handledTasks: [Number] // The wunderlist taskIds that has been already handled
+    handledTasks: [{ title:String, completed_at:String, due_date:String, id:Number, score: Number}] // The wunderlist taskIds that has been already handled
 });
 
 userSchema.methods.addGold = function (value) {

@@ -133,10 +133,11 @@ app.post('/access_token', function (req, res) {
             res.json(parsedBody);//renvoie au client
             console.log("Code sended to the client")
 
-            getWunderlistUser(parsedBody.access_token)
+            // We are dealing with updating user from client now (to get new values)
+            /*getWunderlistUser(parsedBody.access_token)
                 .then((user) => {
                     return updateUser(user.userId, parsedBody.access_token);
-                })
+                })//*/
         })
         .catch(function (err) {
             console.log("POST to get token to wunderlist API failed");
@@ -328,15 +329,15 @@ function getWunderlistUser(token) {
 }
 
 function getWunderlistUserWithGold(token) {
-    let u;
+    let username;
     console.log("getWunderlistUserWithGold")
     return getWunderlistUser(token)
         .then((wunderlistUser) => {
-            u = wunderlistUser;
+            username = wunderlistUser.userName;
             return service.getUserInfo(wunderlistUser.userId);
         }).then(userInfo => {
-            u.gold = userInfo.gold;
-            return u;
+            userInfo.userName = username;
+            return userInfo;
         })
 }
 
