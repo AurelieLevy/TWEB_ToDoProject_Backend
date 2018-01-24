@@ -14,12 +14,7 @@ else // On local docker (windows) if not exists
 
 
 // arrays defining images id available;
-const availableImages = [
-    { imageId: 1, value: 5 },
-    { imageId: 2, value: 20 },
-    { imageId: 3, value: 2 },
-    { imageId: 4, value: 8 },
-];
+const availableImages = require("../ressources/availableImages.json");
 
 // ---------- SCHEMA AND MODELS ----------
 let userSchema = mongoose.Schema({
