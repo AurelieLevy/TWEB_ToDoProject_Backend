@@ -1,0 +1,40 @@
+<div class="md-padding" flex layout-sm="column">
+    <md-card class="text-center">
+        <md-card-content>
+            <div class="container gallery-container">
+
+                <h1>My Photos</h1>
+
+                <div class="tz-gallery">
+                    <div class="row">
+                        <div ng-repeat="x in vm.photos">
+                            <div class="col-sm-6 col-md-4">
+                                <a class="lightbox" href="/app/assets/images/{{x.imageId}}.jpg">
+                                    <img src="/app/assets/images/{{x.imageId}}.jpg" width="305" height="230" alt="{{x.imageId}}">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </md-card-content>
+    </md-card>
+</div>
+
+<div class="md-padding" flex layout-sm="column">
+    <md-card class="text-center">
+        <md-card-content>
+            <div class="container">
+                <h1>Tasks you completed</h1>
+                <md-list-item class=" md-2-line " ng-click="null " ng-repeat="x in vm.user.handledTasks ">
+                    <md-icon>done</md-icon>
+                    <!--<img class="md-avatar " alt="{{item.who}} " ng-src="{{item.face}}?{{$index}} "-->
+                    <div class="md-list-item-text " layout="column ">
+                        <h3>{{ x.title }}</h3>
+                        <h4>Gave you {{ x.score }} <img src="/app/assets/images/gold.png" style="height: 1em;" /> !</h4>
+                    </div>
+                </md-list-item>
+            </div>
+        </md-card-content>
+    </md-card>
+</div>
