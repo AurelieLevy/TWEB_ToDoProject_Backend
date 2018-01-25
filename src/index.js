@@ -97,10 +97,6 @@ var rp = require('request-promise');
 
 app.set('port', (process.env.PORT || 5000));
 
-// endpoint exposing client single-paged app
-app.use('/public',  express.static('public'));
-
-
 // Enabling CORS for the request responded to the client
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
@@ -116,9 +112,8 @@ service.connect()
         });
     });
 
-
 //endpoint pour connexion
-app.post('api/access_token', function (req, res) {
+app.post('/access_token', function (req, res) {
     var code = req.body.code;
     console.log("Code recu: " + code)
     var options = {
@@ -150,7 +145,7 @@ app.post('api/access_token', function (req, res) {
 });
 
 //endpoint pour info user
-app.get('/api/user_info', function (req, res) {
+app.get('/user_info', function (req, res) {
     var token = req.headers['x-access-token'];
     console.log("token: " + token)
 
@@ -165,7 +160,7 @@ app.get('/api/user_info', function (req, res) {
 
 });
 
-app.get('/api/images', function (req, res) {
+app.get('/images', function (req, res) {
     var token = req.headers['x-access-token'];
     if (req.query.filter == "buyable") {
         //endpoint pour obtenir images achetable
@@ -193,7 +188,7 @@ app.get('/api/images', function (req, res) {
 });
 
 //endpoint pour achat image precise
-app.post('api/images/:idImage', function (req, res) {
+app.post('/images/:idImage', function (req, res) {
     var token = req.headers['x-access-token'];
     var imageId = req.params.idImage;
     console.log("ID of the image to paid: " + imageId);
