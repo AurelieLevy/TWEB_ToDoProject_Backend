@@ -98,7 +98,7 @@ var rp = require('request-promise');
 app.set('port', (process.env.PORT || 5000));
 
 // endpoint exposing client single-paged app
-app.use('/public',  express.static('public'));
+app.use(express.static('public'));
 
 
 // Enabling CORS for the request responded to the client
