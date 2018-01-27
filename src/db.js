@@ -48,7 +48,6 @@ userSchema.methods.buyImage = function (id) {
         // Getting the image from the list of avaiable images
         let image = availableImages.find(i => i.imageId == id);
 
-        console.log("leeee");
         console.log(this.ownedImages);
 
         if (this.ownedImages.map(i => i.imageId).includes(id)) {
@@ -61,10 +60,8 @@ userSchema.methods.buyImage = function (id) {
         // Effectively buying the image
         this.gold -= image.value;
         this.ownedImages.push(image);
-        //console.log(this.ownedImages);
 
         resolve(this);
-        //console.log(image);
     });
 }
 
@@ -85,7 +82,7 @@ class DB {
                 console.log("connection to db ready");
 
                 // Cleaning user 
-                return User.remove({});
+                //return User.remove({});
             })
             .catch((err) => console.log(err));
     }
