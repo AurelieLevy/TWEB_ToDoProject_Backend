@@ -14,7 +14,7 @@ The server make the link between the Wunderlist API and the client. The client w
 
 His information will be saved in a mangoose database by the server.
 
-![Sequence diagram](https://github.com/remij1/TWEB_ToDoProject/blob/master/Authentification.png)
+![Sequence diagram](Authentification.png)
 
 ### Database
 
